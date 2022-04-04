@@ -5,7 +5,7 @@ import sys, os
 from pathlib import Path
 from syntax_highlight import PythonHighlighter
 from PyQt6.QtGui import QFont, QFontDatabase, QColor, QSyntaxHighlighter, QTextCharFormat, QIcon
-
+import re
 file_options = [
     {"New" : ["New File", "New Folder"]},
     {"Open": ["Open File", "Open Folder"]},
@@ -26,6 +26,21 @@ run_options = [
 completer = [
     "nuncadamavenve"
 ]
+
+class Highlighter(QSyntaxHighlighter):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._mapping = {}
+
+    def add_mapping(self, pattern, pattern_format):
+        self._mapping[pattern] = pattern_format
+
+    def highlightBlock(self, text_block):
+        for pattern, fmt in self._mapping.items():
+            for match in re.finditer(pattern, text_block):
+                start, end = match.span()
+                self.setFormat(start, end-start, fmt)
+
 class Window(QWidget):
     def __init__(self):
         super().__init__()
@@ -33,7 +48,6 @@ class Window(QWidget):
         self.setWindowTitle("QuickEdit")
         self.setStyleSheet(open("main_stylesheet.css").read())
         self.WidgetDisplay()
-        self.highlighter = PythonHighlighter()
         self.curPath = ""
 
     def WidgetDisplay(self):
@@ -68,16 +82,41 @@ class Window(QWidget):
 
         self.mainLayout.addItem(self.ribbonLayout,0,0,1,6)
 
-        self.TextBox = QPlainTextEdit()
+        self.highlighter = Highlighter()
+        self.setUpEditor()
+
         self.completer = QCompleter(completer)
         
 
         self.mainLayout.addWidget(self.curFileDisplay,0,7)
         self.mainLayout.addWidget(self.TextBox,1,0,10,10)
-
-        #self.highlighter.setDocument(self.TextBox.document())
         
         self.setLayout(self.mainLayout)
+
+    def setUpEditor(self):
+        # define pattern rule #1: highlight class header
+        class_format = QTextCharFormat()
+        class_format.setForeground(QColor(0,0,255))
+        class_format.setFontWeight(350)
+        pattern = r'^\s*class\s+\w+\(.*$'
+        self.highlighter.add_mapping(pattern, class_format)
+
+        # pattern #2: function format
+        function_format = QTextCharFormat()
+        function_format.setForeground(QColor(255,0,0))
+        function_format.setFontItalic(True)
+        pattern = r'^\s*def\s+\w+\s*\(.*\)\s*:\s*$'
+        self.highlighter.add_mapping(pattern, function_format)        
+
+        # pattern 3: comment format
+        comment_format = QTextCharFormat()
+        comment_format.setForeground(QColor("#77ff77"))
+        # pattern = r'^\s*#.*$' # hightlight from the beginning of the line
+        pattern = r'#.*$' # just the text
+        self.highlighter.add_mapping(pattern, comment_format)
+        self.TextBox = QPlainTextEdit()
+
+        self.highlighter.setDocument(self.TextBox.document())
 
     def add_menu(self,data, menu_obj):
         if isinstance(data,dict):
@@ -120,6 +159,5 @@ class Window(QWidget):
 
 app = QApplication(sys.argv)
 window = Window()
-print(vars(window))
 window.show()
 sys.exit(app.exec())
