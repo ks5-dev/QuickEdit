@@ -96,14 +96,14 @@ class Window(QWidget):
     def setUpEditor(self):
         # define pattern rule #1: highlight class header
         class_format = QTextCharFormat()
-        class_format.setForeground(QColor(0,0,255))
+        class_format.setForeground(QColor("#00ad9c"))
         class_format.setFontWeight(350)
         pattern = r'^\s*class\s+\w+\(.*$'
         self.highlighter.add_mapping(pattern, class_format)
 
         # pattern #2: function format
         function_format = QTextCharFormat()
-        function_format.setForeground(QColor(255,0,0))
+        function_format.setForeground(QColor("#f22c40"))
         function_format.setFontItalic(True)
         pattern = r'^\s*def\s+\w+\s*\(.*\)\s*:\s*$'
         self.highlighter.add_mapping(pattern, function_format)        
