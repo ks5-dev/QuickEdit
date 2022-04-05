@@ -3,9 +3,21 @@ from PyQt6.QtWidgets import (QApplication, QWidget, QPushButton, QLabel, QLineEd
 QMenu,QCompleter,QHBoxLayout, QFileDialog, QInputDialog ,QPlainTextEdit)
 import sys, os
 from pathlib import Path
-from syntax_highlight import PythonHighlighter
 from PyQt6.QtGui import QFont, QFontDatabase, QColor, QSyntaxHighlighter, QTextCharFormat, QIcon
 import re
+import os
+import json
+
+#file path
+
+script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
+rel_path_python = "keywords/python.json"
+python_file_path = os.path.join(script_dir, rel_path_python)
+
+with open(python_file_path,"r") as f1:
+    py_keys = json.load(f1)
+    python_keywords = py_keys["basic_keywords"]
+
 file_options = [
     {"New" : ["New File", "New Folder"]},
     {"Open": ["Open File", "Open Folder"]},
@@ -95,6 +107,7 @@ class Window(QWidget):
 
     def setUpEditor(self):
         # define pattern rule #1: highlight class header
+        '''
         class_format = QTextCharFormat()
         class_format.setForeground(QColor("#00ad9c"))
         class_format.setFontWeight(350)
@@ -107,7 +120,17 @@ class Window(QWidget):
         function_format.setFontItalic(True)
         pattern = r'^\s*def\s+\w+\s*\(.*\)\s*:\s*$'
         self.highlighter.add_mapping(pattern, function_format)        
+        '''
 
+        
+        keyword_format = QTextCharFormat()
+        keyword_format.setForeground(QColor("#00ad9c"))
+        keyword_format.setFontWeight(350)
+        #pattern = r"(?=(\b" + '\\b|\\b'.join(python_keywords) + r"\b))"
+        for i in python_keywords:
+            pattern = r"".join(i)
+            self.highlighter.add_mapping(pattern, keyword_format)
+        
         # pattern 3: comment format
         comment_format = QTextCharFormat()
         comment_format.setForeground(QColor("#77ff77"))
@@ -156,7 +179,7 @@ class Window(QWidget):
             self.curFileDisplay.setText("None")
             self.TextBox.clear()
 
-
+print(python_keywords)
 app = QApplication(sys.argv)
 window = Window()
 window.show()
