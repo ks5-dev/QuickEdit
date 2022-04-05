@@ -1,0 +1,5 @@
+{
+    "create-python-venv": "python -m venv ./venv",
+    "activate-venv":"source ./venv/bin/activate",
+    "run-python": "python3"
+}
