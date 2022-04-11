@@ -1,6 +1,6 @@
 from linecache import lazycache
 import sys
-from PyQt6.QtWidgets import (QApplication, QMainWindow, QPushButton, QLabel, QVBoxLayout, QHBoxLayout, QCheckBox, QLineEdit)
+from PySide6.QtWidgets import (QApplication, QMainWindow, QPushButton, QLabel, QVBoxLayout, QHBoxLayout, QCheckBox, QLineEdit)
 import json
 import itertools
 import pyqtgraph as pg
