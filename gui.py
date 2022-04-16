@@ -19,8 +19,8 @@ with open(python_file_path,"r") as f1:
     py_keys = json.load(f1)
     python_keywords = py_keys["basic_keywords"]
 
-rel_path_commands = "commands/run_commands.json"
-commands_file_path = os.path.join(script_dir, rel_path_commands)
+run_path_commands = "commands/run_commands.json"
+commands_file_path = os.path.join(script_dir, run_path_commands)
 
 with open(commands_file_path, "r") as f2:
     commands = json.load(f2)
@@ -43,9 +43,6 @@ edit_options = [
 run_options = [
     "Run",
     "Editing commands"
-]
-completer = [
-    "nuncadamavenve"
 ]
 
 class Highlighter(QSyntaxHighlighter):
@@ -187,7 +184,7 @@ class Window(QWidget):
                     self.TextBox.setPlainText(data)
         
         if command == "Save now":
-            print(False)
+
             with open(self.curPath,"w") as f:
                 f.write(self.TextBox.toPlainText())
         
@@ -205,12 +202,34 @@ class Window(QWidget):
 
     def runFile(self, command):
         if command == "Run" and self.curPath != "":
-            print("True")
             self.curFolder = os.path.dirname(self.curPath)
             if self.fileName.endswith(".py"):
                 os.system(run_py + " " + self.fileName)
+        elif command == "Editing commands":
+            if self.curPath != "":
+                with open(self.curPath,"w") as f:
+                    f.write(self.TextBox.toPlainText())
+
+                self.curPath = run_path_commands
+                self.fileName = os.path.basename(run_path_commands)
+                self.curFileDisplay.setText(self.fileName)
+
+                with open(self.curPath, "r") as edit_run:
+                    data = edit_run.read()
+                    self.TextBox.setPlainText(data)
+
+
+            else:
+                self.curPath = run_path_commands
+                self.fileName = os.path.basename(run_path_commands)
+                self.curFileDisplay.setText(self.fileName)
+
+                with open(self.curPath, "r") as edit_run:
+                    data = edit_run.read()
+                    self.TextBox.setPlainText(data)
+
 
 app = QApplication(sys.argv)
 window = Window()
 window.show()
-sys.exit(app.execo())
+sys.exit(app.exec())
